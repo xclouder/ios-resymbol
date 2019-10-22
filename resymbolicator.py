@@ -29,8 +29,11 @@ class UUIDChecker:
 			return None
 
 	def get_dSYM_uuid(self, dsymPath):
-
+		output = os.popen('xcrun dwarfdump --uuid ' + dsymPath, 'r')
+		result = output.read()
 		#todo
+		print result
+		
 		return "84769a611f8d3e369b621d4cee8cd4cd"
 
 	def check(self, dsymPath, crashTxt):
@@ -40,10 +43,11 @@ class UUIDChecker:
 		return logUUID == dsymUUID
 
 class Resymbolicator:
-	def __init__(self, appName):
+	def __init__(self, appName, dsymPath):
 		self.appName = appName
 		patternStr = appName + r"\s+(\w+) (\w+)"
 		self.pattern = re.compile(patternStr)
+		self.dsymPath = dsymPath
 
 	def is_app_stack(self, lineStr):
 		if (lineStr.find(self.appName) > 0 and lineStr.find("0x") > 0):
@@ -65,6 +69,16 @@ class Resymbolicator:
 		return None, None
 
 	def get_resymbol_str(self, baseAddr, finalAddr):
+
+		cmd = "atos -o " + self.dsymPath + "/Contents/Resources/DWARF/" + self.appName + " -arch arm64 -l " + baseAddr + " " + finalAddr
+		#print cmd
+		output = os.popen(cmd, 'r')
+		result = output.read()
+		#todo
+		print result
+
+
+
 		return "mock"
 
 	def resymbol(self, lines):
@@ -114,7 +128,7 @@ def main():
 
 		crashLines = crashTxt.splitlines()
 
-		resym = Resymbolicator(args.appName)
+		resym = Resymbolicator(args.appName, args.dsymPath)
 		lines = resym.resymbol(crashLines)
 
 		resultTxt = '\n'.join(lines)
