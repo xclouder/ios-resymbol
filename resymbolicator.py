@@ -31,10 +31,17 @@ class UUIDChecker:
 	def get_dSYM_uuid(self, dsymPath):
 		output = os.popen('xcrun dwarfdump --uuid ' + dsymPath, 'r')
 		result = output.read()
-		#todo
 		print result
-		
-		return "84769a611f8d3e369b621d4cee8cd4cd"
+
+		uuidArr = result.splitlines()
+		arm64 = uuidArr[1]
+
+		segs = arm64.split()
+		uuid = segs[1].lower().replace('-', '')
+
+		print uuid
+
+		return uuid
 
 	def check(self, dsymPath, crashTxt):
 		logUUID = self.get_crashlog_uuid(crashTxt)
@@ -64,7 +71,7 @@ class Resymbolicator:
 
 			#int lineStr + " > " + finalAddr + "," + baseAddr
 
-			return finalAddr, baseAddr
+			return baseAddr, finalAddr
 
 		return None, None
 
@@ -74,12 +81,8 @@ class Resymbolicator:
 		#print cmd
 		output = os.popen(cmd, 'r')
 		result = output.read()
-		#todo
-		print result
-
-
-
-		return "mock"
+		
+		return result
 
 	def resymbol(self, lines):
 
@@ -132,7 +135,7 @@ def main():
 		lines = resym.resymbol(crashLines)
 
 		resultTxt = '\n'.join(lines)
-		#print resultTxt
+		print resultTxt
 
 
 
