@@ -135,8 +135,12 @@ def main():
 		lines = resym.resymbol(crashLines)
 
 		resultTxt = '\n'.join(lines)
-		print resultTxt
+		#print resultTxt
 
+		with open(outputPath,'w') as outputFile:
+			outputFile.write(resultTxt)
+
+		print "success"
 
 
 if __name__=="__main__":
